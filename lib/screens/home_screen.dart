@@ -4,8 +4,6 @@ import 'package:flutter_chat/widgets.dart/favourite_contacts.dart';
 import 'package:flutter_chat/widgets.dart/recent_chats.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
-
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
