@@ -1,11 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/widgets.dart/rounded_button.dart';
 
 class WelcomeScreen extends StatefulWidget {
   @override
   _WelcomeScreenState createState() => _WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
+class _WelcomeScreenState extends State<WelcomeScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller =
+        AnimationController(vsync: this, duration: Duration(seconds: 1));
+
+    controller.forward();
+
+    controller.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,62 +42,37 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           children: <Widget>[
             Row(
               children: <Widget>[
-                Container(
-                  child: Image.asset('assets/images/logo.png'),
-                  height: 70.0,
+                Hero(
+                  tag: 'logo',
+                  child: Container(
+                    child: Image.asset('assets/images/logo.png'),
+                    height: 70.0,
+                  ),
                 ),
                 Text(
                   'Chat App',
                   style: TextStyle(
-                    fontSize: 45.0,
-                    fontWeight: FontWeight.w900,
-                  ),
+                      fontSize: 56.0,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.red.withOpacity(controller.value)),
                 ),
               ],
             ),
             SizedBox(
               height: 120.0,
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0),
-              child: Material(
-                elevation: 5.0,
-                color: Theme.of(context).primaryColor,
-                borderRadius: BorderRadius.circular(30.0),
-                child: MaterialButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/login');
-                  },
-                  minWidth: 200.0,
-                  height: 50.0,
-                  child: Text(
-                    'Log In',
-                    style: TextStyle(
-                        color: Theme.of(context).accentColor, fontSize: 20.0),
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0),
-              child: Material(
-                color: Theme.of(context).primaryColor,
-                borderRadius: BorderRadius.circular(30.0),
-                elevation: 5.0,
-                child: MaterialButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/registration');
-                  },
-                  minWidth: 200.0,
-                  height: 50.0,
-                  child: Text(
-                    'Register',
-                    style: TextStyle(
-                        color: Theme.of(context).accentColor, fontSize: 20.0),
-                  ),
-                ),
-              ),
-            ),
+            RoundedButton(
+                text: 'Log In',
+                onPressed: () {
+                  Navigator.pushNamed(context, '/login');
+                },
+                paddingVertical: 16.0),
+            RoundedButton(
+                text: 'Register',
+                onPressed: () {
+                  Navigator.pushNamed(context, '/registration');
+                },
+                paddingVertical: 16.0),
           ],
         ),
       ),
