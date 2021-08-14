@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/models.dart/message_model.dart';
-
 import 'package:flutter_chat/models.dart/user_model.dart';
 
 class ChatScreen extends StatefulWidget {
-  final User user;
+  final UserModel? user;
 
   const ChatScreen({
     Key? key,
-    required this.user,
+    this.user,
   }) : super(key: key);
 
   @override
@@ -112,7 +111,7 @@ class _ChatScreenState extends State<ChatScreen> {
         appBar: AppBar(
           backgroundColor: Theme.of(context).primaryColor,
           title: Text(
-            widget.user.name,
+            widget.user!.name,
             style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
           ),
           elevation: 0.0,

@@ -1,7 +1,7 @@
 import 'package:flutter_chat/models.dart/user_model.dart';
 
 class Message {
-  final User sender;
+  final UserModel sender;
   final String
       time; // Would usually be type DateTime or Firebase Timestamp in production apps
   final String text;
@@ -17,52 +17,52 @@ class Message {
   });
 }
 
-// YOU - current user
-final User currentUser = User(
+// YOU - current UserModel
+final UserModel currentUser = UserModel(
   id: 0,
-  name: 'Current User',
+  name: 'Current UserModel',
   imageUrl: 'assets/images/greg.jpg',
 );
 
-// USERS
-final User greg = User(
+// UserModelS
+final UserModel greg = UserModel(
   id: 1,
   name: 'Greg',
   imageUrl: 'assets/images/greg.jpg',
 );
-final User james = User(
+final UserModel james = UserModel(
   id: 2,
   name: 'James',
   imageUrl: 'assets/images/james.jpg',
 );
-final User john = User(
+final UserModel john = UserModel(
   id: 3,
   name: 'John',
   imageUrl: 'assets/images/john.jpg',
 );
-final User olivia = User(
+final UserModel olivia = UserModel(
   id: 4,
   name: 'Olivia',
   imageUrl: 'assets/images/olivia.jpg',
 );
-final User sam = User(
+final UserModel sam = UserModel(
   id: 5,
   name: 'Sam',
   imageUrl: 'assets/images/sam.jpg',
 );
-final User sophia = User(
+final UserModel sophia = UserModel(
   id: 6,
   name: 'Sophia',
   imageUrl: 'assets/images/sophia.jpg',
 );
-final User steven = User(
+final UserModel steven = UserModel(
   id: 7,
   name: 'Steven',
   imageUrl: 'assets/images/steven.jpg',
 );
 
 // FAVORITE CONTACTS
-List<User> favorites = [sam, steven, olivia, john, greg];
+List<UserModel> favorites = [sam, steven, olivia, john, greg];
 
 // EXAMPLE CHATS ON HOME SCREEN
 List<Message> chats = [
