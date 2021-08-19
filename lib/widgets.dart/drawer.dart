@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../services/authentication.dart';
 
 class MyDrawer extends StatelessWidget {
   const MyDrawer({Key? key}) : super(key: key);
@@ -51,7 +54,9 @@ class MyDrawer extends StatelessWidget {
               ),
               ListTile(
                 onTap: () {
-                  Navigator.popUntil(context, ModalRoute.withName('/login'));
+                  final provider =
+                      Provider.of<GoogleSignInProvider>(context, listen: false);
+                  provider.signOut();
                 },
                 leading: Icon(
                   Icons.logout,

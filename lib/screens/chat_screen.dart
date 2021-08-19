@@ -1,5 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat/models.dart/message_model.dart';
 import 'package:flutter_chat/models.dart/user_model.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -15,7 +16,34 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  _buildMessage(Message message, bool isMe) {
+  final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
+
+  late User loggedinUser;
+
+  String messageText = '';
+
+  final messageTextController = TextEditingController();
+
+  void getCurrentUser() async {
+    final user = _auth.currentUser;
+    try {
+      if (user != null) {
+        loggedinUser = user;
+        print(loggedinUser.email);
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUser();
+  }
+
+  Widget _buildMessage(String message, bool isMe) {
     final Container msg = Container(
       width: MediaQuery.of(context).size.width * 0.75,
       decoration: BoxDecoration(
@@ -30,17 +58,17 @@ class _ChatScreenState extends State<ChatScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 15.0),
       margin: isMe
           ? const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 80.0)
-          : const EdgeInsets.only(top: 8.0, bottom: 8.0),
+          : const EdgeInsets.only(top: 8.0, bottom: 8.0, right: 80.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(message.time,
+          Text(_firestore.collection('messages').doc('time').get().toString(),
               style: TextStyle(
                   color: Colors.blueGrey,
                   fontSize: 14.0,
                   fontWeight: FontWeight.w600)),
           const SizedBox(height: 8.0),
-          Text(message.text,
+          Text(message,
               style: TextStyle(
                   color: Colors.blueGrey[700],
                   fontSize: 16.0,
@@ -49,25 +77,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
 
-    if (isMe) {
-      return msg;
-    }
-
-    return Row(
-      children: [
-        msg,
-        IconButton(
-          onPressed: () {},
-          icon: message.isLiked
-              ? Icon(Icons.favorite)
-              : Icon(Icons.favorite_border),
-          iconSize: 30.0,
-          color: message.isLiked
-              ? Theme.of(context).primaryColor
-              : Colors.blueGrey,
-        )
-      ],
-    );
+    return msg;
   }
 
   _buildCompose() {
@@ -87,12 +97,23 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           Expanded(
               child: TextField(
+            controller: messageTextController,
             textCapitalization: TextCapitalization.sentences,
+            onChanged: (value) {
+              messageText = value;
+            },
             decoration:
                 InputDecoration.collapsed(hintText: "Type Something Here ..."),
           )),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              _firestore.collection('messages').add(({
+                    'text': messageText,
+                    'sender': loggedinUser.email,
+                    'time': DateTime.now()
+                  }));
+              messageTextController.clear();
+            },
             icon: Icon(
               Icons.send,
             ),
@@ -139,14 +160,24 @@ class _ChatScreenState extends State<ChatScreen> {
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(30.0),
                         topRight: Radius.circular(30.0)),
-                    child: ListView.builder(
-                        reverse: true,
-                        padding: const EdgeInsets.only(top: 15.0),
-                        itemCount: messages.length,
-                        itemBuilder: (BuildContext context, index) {
-                          final Message message = messages[index];
-                          final bool isMe = message.sender.id == currentUser.id;
-                          return _buildMessage(message, isMe);
+                    child: StreamBuilder<QuerySnapshot>(
+                        stream: _firestore
+                            .collection('messages')
+                            .orderBy('time', descending: true)
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          return ListView(
+                              reverse: true,
+                              children: snapshot.data!.docs.map((document) {
+                                return _buildMessage(document['text'],
+                                    document['sender'] == loggedinUser.email);
+                              }).toList());
                         }),
                   ),
                 ),

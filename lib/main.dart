@@ -1,12 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat/google_signin.dart';
+import 'package:flutter_chat/services/authentication.dart';
+import 'package:flutter_chat/services/snapshot.dart';
 import 'package:flutter_chat/screens/chat_screen.dart';
 import 'package:flutter_chat/screens/home_screen.dart';
 import 'package:flutter_chat/screens/login_screen.dart';
 import 'package:flutter_chat/screens/registration_screen.dart';
-import 'package:flutter_chat/screens/welcome_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -30,7 +29,7 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: '/',
         routes: {
-          '/': (context) => WelcomeScreen(),
+          '/': (context) => HomePage(),
           '/login': (context) => LoginScreen(),
           '/home': (context) => HomeScreen(),
           '/chat': (context) => ChatScreen(),
