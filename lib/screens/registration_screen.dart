@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/constants/input_decoration.dart';
 import 'package:flutter_chat/services/authentication.dart';
@@ -15,7 +14,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String password = '';
   String username = '';
 
-  final _auth = FirebaseAuth.instance;
+  //final _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -70,9 +69,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   final provider =
                       Provider.of<GoogleSignInProvider>(context, listen: false);
 
-                  provider.signUpWithEmailAndPassword(email, password);
+                  provider
+                      .signUpWithEmailAndPassword(email, password, username)
+                      .then((value) => Navigator.pop(context));
 
-                  Navigator.pushNamed(context, '/home');
+                  // Navigator.pushNamed(context, '/home');
                 },
                 paddingVertical: 16.0),
             RoundedButton(

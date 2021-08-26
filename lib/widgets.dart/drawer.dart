@@ -1,7 +1,8 @@
+//import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../services/authentication.dart';
 
 class MyDrawer extends StatelessWidget {
@@ -9,6 +10,10 @@ class MyDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // User? user = Provider.of<GoogleSignInProvider>(context).user;
+
+    // FirebaseFirestore firestore = FirebaseFirestore.instance;
+
     final image =
         "https://i.pinimg.com/originals/26/86/b5/2686b53f79adc176a15320dbc57c58a3.jpg";
     return Container(
@@ -22,8 +27,8 @@ class MyDrawer extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 child: UserAccountsDrawerHeader(
                   margin: EdgeInsets.zero,
-                  accountName: Text("Khushi Kalathiya"),
-                  accountEmail: Text("khushikalathiya1234@gmail.com"),
+                  accountName: Text('hey'),
+                  accountEmail: Text('hello'),
                   currentAccountPicture: CircleAvatar(
                     backgroundImage: NetworkImage(image),
                   ),

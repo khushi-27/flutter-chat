@@ -23,7 +23,9 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0.0,
         actions: <Widget>[
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, '/search');
+            },
             icon: Icon(Icons.search),
             iconSize: 30.0,
             color: Colors.white,

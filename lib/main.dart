@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/screens/search_screen.dart';
 import 'package:flutter_chat/services/authentication.dart';
 import 'package:flutter_chat/services/snapshot.dart';
 import 'package:flutter_chat/screens/chat_screen.dart';
@@ -33,7 +34,8 @@ class MyApp extends StatelessWidget {
           '/login': (context) => LoginScreen(),
           '/home': (context) => HomeScreen(),
           '/chat': (context) => ChatScreen(),
-          '/registration': (context) => RegistrationScreen()
+          '/registration': (context) => RegistrationScreen(),
+          '/search': (context) => SearchScreen()
         },
       ),
     );

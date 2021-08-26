@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_chat/services/database.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class GoogleSignInProvider extends ChangeNotifier {
@@ -11,6 +12,8 @@ class GoogleSignInProvider extends ChangeNotifier {
 
   User? get user => _user;
 
+  DatabaseMethods databaseMethods = DatabaseMethods();
+
   Future signWithEmailAndPassword(String email, String password) async {
     try {
       final emailSignInUser = await _firebaseAuth.signInWithEmailAndPassword(
@@ -21,20 +24,34 @@ class GoogleSignInProvider extends ChangeNotifier {
       return _user;
     } catch (e) {
       print(e);
-      _user = null;
-      return _user;
     }
+
+    notifyListeners();
   }
 
-  Future signUpWithEmailAndPassword(String email, String password) async {
+  Future signUpWithEmailAndPassword(
+      String email, String password, String userName) async {
     try {
       final emailSignUpUser = await _firebaseAuth
-          .createUserWithEmailAndPassword(email: email, password: password);
+          .createUserWithEmailAndPassword(email: email, password: password)
+          .then((UserCredential? result) {
+        if (result != null) {
+          Map<String, dynamic> userDataMap = {
+            "email": email,
+            "userName": userName
+          };
+          databaseMethods.addUserInfo(userDataMap);
+        }
+      });
+
       _user = emailSignUpUser.user;
+
       return _user;
     } catch (e) {
       print(e);
     }
+
+    notifyListeners();
   }
 
   Future signInWithGoogle() async {

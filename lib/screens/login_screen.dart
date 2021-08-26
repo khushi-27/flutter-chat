@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/constants/input_decoration.dart';
 import 'package:flutter_chat/services/authentication.dart';
@@ -13,7 +13,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   String email = '';
   String password = '';
-  final _auth = FirebaseAuth.instance;
+  String userName = '';
 
   @override
   Widget build(BuildContext context) {
@@ -34,12 +34,11 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 70.0,
             ),
             TextField(
-                keyboardType: TextInputType.emailAddress,
                 onChanged: (value) {
-                  email = value;
+                  userName = value;
                 },
                 decoration:
-                    inputFieldDecoration.copyWith(hintText: 'Enter email')),
+                    inputFieldDecoration.copyWith(hintText: 'Enter User Name')),
             SizedBox(
               height: 20.0,
             ),
@@ -58,14 +57,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: () async {
                   final provider =
                       Provider.of<GoogleSignInProvider>(context, listen: false);
-                  final user =
-                      await provider.signWithEmailAndPassword(email, password);
 
-                  if (user != null) {
-                    Navigator.pushNamed(context, '/home');
-                  } else {
-                    Navigator.pushNamed(context, '/registration');
-                  }
+                  var snapshot = await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(userName)
+                      .get();
+
+                  email = snapshot.get('email');
+
+                  provider
+                      .signWithEmailAndPassword(email, password)
+                      .then((value) => Navigator.pop(context));
                 },
                 paddingVertical: 0.0)
           ],
