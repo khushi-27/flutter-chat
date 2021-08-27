@@ -173,11 +173,28 @@ class _ChatScreenState extends State<ChatScreen> {
                               itemCount: snapshot.data!.docs.length,
                               itemBuilder: (context, index) {
                                 var data = snapshot.data!.docs[index];
-                                // print(data.get('message'));
-                                return _buildMessage(
-                                    data.get('message'),
-                                    data.get('sendBy') == widget.myUserName,
-                                    (data.get('time') as Timestamp).toDate());
+
+                                return GestureDetector(
+                                  onLongPress: () {
+                                    String docId = data.id;
+                                    print(docId);
+                                    setState(() {
+                                      FirebaseFirestore.instance
+                                          .collection('chatRoom')
+                                          .doc(widget.chatRoomId)
+                                          .collection('chats')
+                                          .doc(docId)
+                                          .delete()
+                                          .then((value) => print('updated'))
+                                          .catchError(
+                                              (e) => print(e.toString()));
+                                    });
+                                  },
+                                  child: _buildMessage(
+                                      data.get('message'),
+                                      data.get('sendBy') == widget.myUserName,
+                                      (data.get('time') as Timestamp).toDate()),
+                                );
                               });
                         }),
                   ),
