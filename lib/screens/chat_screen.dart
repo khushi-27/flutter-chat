@@ -1,141 +1,138 @@
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat/models.dart/user_model.dart';
+import 'package:flutter_chat/services/database.dart';
 
 class ChatScreen extends StatefulWidget {
-  final UserModel? user;
+  final String? chatRoomId;
+  final String? myUserName;
+  final String? userName;
 
-  const ChatScreen({
-    Key? key,
-    this.user,
-  }) : super(key: key);
+  const ChatScreen({Key? key, this.chatRoomId, this.myUserName, this.userName})
+      : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  // final _auth = FirebaseAuth.instance;
-  // final _firestore = FirebaseFirestore.instance;
+  DatabaseMethods databaseMethods = DatabaseMethods();
 
-  // late User loggedinUser;
+  TextEditingController messageTextController = TextEditingController();
 
-  // String messageText = '';
+  Stream<QuerySnapshot>? chatMessagesSnapshot;
 
-  // final messageTextController = TextEditingController();
+  uploadMessages() async {
+    if (messageTextController.text.isNotEmpty) {
+      Map<String, dynamic> userMap = {
+        'message': messageTextController.text,
+        'sendBy': widget.myUserName,
+        'time': DateTime.now()
+      };
+      await databaseMethods.addConversationMessages(
+          widget.chatRoomId!, userMap);
+    }
+  }
 
-  // void getCurrentUser() async {
-  //   final user = _auth.currentUser;
-  //   try {
-  //     if (user != null) {
-  //       loggedinUser = user;
-  //       print(loggedinUser.email);
-  //     }
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
+  Future getSnapshots() async {
+    var doc = await databaseMethods.getConversationMessages(widget.chatRoomId!);
+    setState(() {
+      chatMessagesSnapshot = doc;
+    });
+  }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   getCurrentUser();
-  // }
+  @override
+  void initState() {
+    getSnapshots();
+    super.initState();
+  }
 
-  // Widget _buildMessage(String message, bool isMe) {
-  //   final Container msg = Container(
-  //     width: MediaQuery.of(context).size.width * 0.75,
-  //     decoration: BoxDecoration(
-  //         color: isMe ? Theme.of(context).accentColor : Color(0xFFFFEFEE),
-  //         borderRadius: isMe
-  //             ? BorderRadius.only(
-  //                 topLeft: Radius.circular(15.0),
-  //                 bottomLeft: Radius.circular(15.0))
-  //             : BorderRadius.only(
-  //                 topRight: Radius.circular(15.0),
-  //                 bottomRight: Radius.circular(15.0))),
-  //     padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 15.0),
-  //     margin: isMe
-  //         ? const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 80.0)
-  //         : const EdgeInsets.only(top: 8.0, bottom: 8.0, right: 80.0),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Text('hello',
-  //             //_firestore.collection('messages').doc('time').get().toString(),
-  //             style: TextStyle(
-  //                 color: Colors.blueGrey,
-  //                 fontSize: 14.0,
-  //                 fontWeight: FontWeight.w600)),
-  //         const SizedBox(height: 8.0),
-  //         Text(message,
-  //             style: TextStyle(
-  //                 color: Colors.blueGrey[700],
-  //                 fontSize: 16.0,
-  //                 fontWeight: FontWeight.w600)),
-  //       ],
-  //     ),
-  //   );
+  Widget _buildMessage(String message, bool isMe, DateTime time) {
+    final Container msg = Container(
+      width: MediaQuery.of(context).size.width * 0.75,
+      decoration: BoxDecoration(
+          color: isMe ? Color(0xFFFEF9DB) : Color(0xFFFFEFEE),
+          borderRadius: isMe
+              ? BorderRadius.only(
+                  topLeft: Radius.circular(15.0),
+                  bottomLeft: Radius.circular(15.0))
+              : BorderRadius.only(
+                  topRight: Radius.circular(15.0),
+                  bottomRight: Radius.circular(15.0))),
+      padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 15.0),
+      margin: isMe
+          ? const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 80.0)
+          : const EdgeInsets.only(top: 8.0, bottom: 8.0, right: 80.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('${time.hour.toString()} : ${time.minute.toString()}',
+              style: TextStyle(
+                  color: Colors.blueGrey,
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8.0),
+          Text(message,
+              style: TextStyle(
+                  color: Colors.blueGrey[700],
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
 
-  //   return msg;
-  // }
+    return msg;
+  }
 
-  // _buildCompose() {
-  //   return Container(
-  //     padding: const EdgeInsets.symmetric(horizontal: 8.0),
-  //     height: 70.0,
-  //     color: Colors.white,
-  //     child: Row(
-  //       children: [
-  //         IconButton(
-  //           onPressed: () {},
-  //           icon: Icon(
-  //             Icons.emoji_emotions,
-  //           ),
-  //           iconSize: 25.0,
-  //           color: Colors.blueGrey,
-  //         ),
-  //         Expanded(
-  //             child: TextField(
-  //           controller: messageTextController,
-  //           textCapitalization: TextCapitalization.sentences,
-  //           onChanged: (value) {
-  //             messageText = value;
-  //           },
-  //           decoration:
-  //               InputDecoration.collapsed(hintText: "Type Something Here ..."),
-  //         )),
-  //         IconButton(
-  //           onPressed: () {
-  //             // _firestore.collection('messages').add(({
-  //             //       'text': messageText,
-  //             //       'sender': loggedinUser.email,
-  //             //       'time': DateTime.now()
-  //             //     }));
-  //             // messageTextController.clear();
-  //           },
-  //           icon: Icon(
-  //             Icons.send,
-  //           ),
-  //           iconSize: 25.0,
-  //           color: Colors.blueGrey,
-  //         )
-  //       ],
-  //     ),
-  //   );
-  // }
+  _buildCompose() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      height: 70.0,
+      color: Colors.white,
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () {},
+            icon: Icon(
+              Icons.emoji_emotions,
+            ),
+            iconSize: 25.0,
+            color: Colors.blueGrey,
+          ),
+          Expanded(
+              child: TextField(
+            controller: messageTextController,
+            textCapitalization: TextCapitalization.sentences,
+            decoration:
+                InputDecoration.collapsed(hintText: "Type Something Here ..."),
+          )),
+          IconButton(
+            onPressed: () {
+              uploadMessages();
+
+              messageTextController.clear();
+            },
+            icon: Icon(
+              Icons.send,
+            ),
+            iconSize: 25.0,
+            color: Colors.blueGrey,
+          )
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Color(0xFFFEF9DB),
         appBar: AppBar(
           backgroundColor: Theme.of(context).primaryColor,
           title: Text(
-            'hey',
-            //widget.user!.name,
-            style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
+            widget.userName!,
+            style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold),
           ),
           elevation: 0.0,
           actions: [
@@ -162,29 +159,31 @@ class _ChatScreenState extends State<ChatScreen> {
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(30.0),
                         topRight: Radius.circular(30.0)),
-                    // child: StreamBuilder<QuerySnapshot>(
-                    //     stream: _firestore
-                    //         .collection('messages')
-                    //         .orderBy('time', descending: true)
-                    //         .snapshots(),
-                    //     builder: (context, snapshot) {
-                    //       if (!snapshot.hasData) {
-                    //         return Center(
-                    //           child: CircularProgressIndicator(),
-                    //         );
-                    //       }
+                    child: StreamBuilder<QuerySnapshot>(
+                        stream: chatMessagesSnapshot,
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
 
-                    //       return ListView(
-                    //           reverse: true,
-                    //           children: snapshot.data!.docs.map((document) {
-                    //             return _buildMessage(document['text'],
-                    //                 document['sender'] == loggedinUser.email);
-                    //           }).toList());
-                    //     }),
+                          return ListView.builder(
+                              reverse: true,
+                              itemCount: snapshot.data!.docs.length,
+                              itemBuilder: (context, index) {
+                                var data = snapshot.data!.docs[index];
+                                // print(data.get('message'));
+                                return _buildMessage(
+                                    data.get('message'),
+                                    data.get('sendBy') == widget.myUserName,
+                                    (data.get('time') as Timestamp).toDate());
+                              });
+                        }),
                   ),
                 ),
               ),
-              // _buildCompose(),
+              _buildCompose(),
             ],
           ),
         ));

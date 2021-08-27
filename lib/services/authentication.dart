@@ -12,6 +12,8 @@ class GoogleSignInProvider extends ChangeNotifier {
 
   User? get user => _user;
 
+  Map<String, dynamic> userDataMap = {'email': '', 'userName': ''};
+
   DatabaseMethods databaseMethods = DatabaseMethods();
 
   Future signWithEmailAndPassword(String email, String password) async {
@@ -36,10 +38,7 @@ class GoogleSignInProvider extends ChangeNotifier {
           .createUserWithEmailAndPassword(email: email, password: password)
           .then((UserCredential? result) {
         if (result != null) {
-          Map<String, dynamic> userDataMap = {
-            "email": email,
-            "userName": userName
-          };
+          userDataMap = {"email": email, "userName": userName};
           databaseMethods.addUserInfo(userDataMap);
         }
       });
@@ -60,12 +59,21 @@ class GoogleSignInProvider extends ChangeNotifier {
     if (googleUser != null) {
       final googleAuth = await googleUser.authentication;
       if (googleAuth.idToken != null) {
-        final userCredential = await _firebaseAuth.signInWithCredential(
+        final userCredential = await _firebaseAuth
+            .signInWithCredential(
           GoogleAuthProvider.credential(
               idToken: googleAuth.idToken, accessToken: googleAuth.accessToken),
-        );
-        // print(userCredential.user!.displayName);
-        _user = userCredential.user;
+        )
+            .then((UserCredential? result) {
+          if (result != null) {
+            userDataMap = {
+              "email": result.user!.email,
+              "userName": result.user!.displayName
+            };
+            databaseMethods.addUserInfo(userDataMap);
+          }
+        });
+        // _user = userCredential.user;
       }
     }
     notifyListeners();

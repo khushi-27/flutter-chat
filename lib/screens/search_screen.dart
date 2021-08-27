@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/screens/chat_screen.dart';
 import 'package:flutter_chat/services/database.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -16,23 +17,23 @@ class _SearchScreenState extends State<SearchScreen> {
 
   QuerySnapshot? getUserNameSnapshot;
 
-  String myUserName = '';
+  String? myUserName;
 
-  getMyUserName() {
+  Future getMyUserName() async {
     String? email = FirebaseAuth.instance.currentUser!.email;
-    databaseMethods.getUserEmail(email!).then((val) {
-      setState(() {
-        getUserNameSnapshot = val;
-      });
+    var doc = await databaseMethods.getUserNameByEmail(email!);
+    setState(() {
+      getUserNameSnapshot = doc;
+      myUserName = getUserNameSnapshot!.docs[0].id;
     });
-    myUserName = getUserNameSnapshot!.docs[0].id;
   }
 
-  initiateSearch() {
-    databaseMethods.getUserName(searchText).then((val) {
-      setState(() {
-        searchSnapshot = val;
-      });
+  initiateSearch() async {
+    await getMyUserName();
+    var doc = await databaseMethods.getUserName(searchText);
+
+    setState(() {
+      searchSnapshot = doc;
     });
   }
 
@@ -44,17 +45,24 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  createChatRoom(String userName) {
+  createChatRoom(String userName) async {
+    await getMyUserName();
     List<String?> users = [userName, myUserName];
 
-    String chatRoomId = getChatRoomId(userName, myUserName);
+    String chatRoomId = getChatRoomId(userName, myUserName!);
 
     Map<String, dynamic> chatRoom = {'users': users, 'chatRoomId': chatRoomId};
 
     databaseMethods.createChatRoom(chatRoom, chatRoomId);
-    print(users);
-    print(chatRoomId);
-    Navigator.popAndPushNamed(context, '/chat');
+
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ChatScreen(
+                  chatRoomId: chatRoomId,
+                  myUserName: myUserName,
+                  userName: userName,
+                )));
   }
 
   @override
@@ -66,6 +74,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          backgroundColor: Theme.of(context).primaryColor,
           title: TextBox(
             onchanged: (value) {
               searchText = value;
@@ -74,13 +83,21 @@ class _SearchScreenState extends State<SearchScreen> {
           actions: [
             IconButton(
               icon: Icon(Icons.search),
-              onPressed: () {
-                initiateSearch();
+              onPressed: () async {
+                await initiateSearch();
               },
             ),
           ],
         ),
-        body: searchList());
+        body: myUserName != null
+            ? myUserName != searchText
+                ? searchList()
+                : Center(
+                    child: Text(
+                    'You cannot text yourself 😁',
+                    style: TextStyle(fontSize: 25.0),
+                  ))
+            : Container());
   }
 
   Widget searchList() {
@@ -89,10 +106,8 @@ class _SearchScreenState extends State<SearchScreen> {
             shrinkWrap: true,
             itemCount: searchSnapshot!.docs.length,
             itemBuilder: (context, index) {
-              return myUserName == searchSnapshot!.docs[index].get('userName')
-                  ? searchTile(searchSnapshot!.docs[index].get('userName'),
-                      searchSnapshot!.docs[index].get('email'))
-                  : Container(child: Text('You cannot text yourself 😁'));
+              return searchTile(searchSnapshot!.docs[index].get('userName'),
+                  searchSnapshot!.docs[index].get('email'));
             })
         : Container();
   }
@@ -168,12 +183,3 @@ class TextBox extends StatelessWidget {
     );
   }
 }
-
-// class SearchTile extends StatelessWidget {
-//   final String userName;
-//   final String userEmail;
-
-//   const SearchTile({Key? key, required this.userName, required this.userEmail})
-//       : super(key: key);
-
-//}

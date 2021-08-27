@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/models.dart/message_model.dart';
-import 'package:flutter_chat/screens/chat_screen.dart';
 
 class FavouriteContacts extends StatelessWidget {
   const FavouriteContacts({Key? key}) : super(key: key);
@@ -11,7 +10,7 @@ class FavouriteContacts extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Column(children: <Widget>[
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -23,13 +22,6 @@ class FavouriteContacts extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              IconButton(
-                  onPressed: () {
-                    print("search");
-                  },
-                  icon: Icon(Icons.more_horiz),
-                  iconSize: 30.0,
-                  color: Colors.blueGrey[700])
             ],
           ),
         ),
@@ -41,11 +33,8 @@ class FavouriteContacts extends StatelessWidget {
                 itemCount: favorites.length,
                 itemBuilder: (BuildContext context, int index) {
                   return GestureDetector(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) =>
-                                ChatScreen(user: favorites[index]))),
+                    // onTap: () => Navigator.push(context,
+                    //     MaterialPageRoute(builder: (_) => ChatScreen())),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Column(children: [

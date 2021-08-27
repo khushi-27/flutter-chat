@@ -26,7 +26,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primaryColor: Colors.red,
-          accentColor: Color(0xFFFEF9DB),
+          colorScheme:
+              ColorScheme.fromSwatch().copyWith(secondary: Color(0xFFFEF9DB)),
         ),
         initialRoute: '/',
         routes: {

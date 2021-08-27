@@ -21,7 +21,7 @@ class DatabaseMethods {
     });
   }
 
-  getUserEmail(String email) async {
+  getUserNameByEmail(String email) async {
     return await FirebaseFirestore.instance
         .collection("users")
         .where("email", isEqualTo: email)
@@ -39,5 +39,32 @@ class DatabaseMethods {
         .catchError((e) {
       print(e);
     });
+  }
+
+  addConversationMessages(String chatRoomId, userMap) {
+    FirebaseFirestore.instance
+        .collection('chatRoom')
+        .doc(chatRoomId)
+        .collection('chats')
+        .add(userMap)
+        .catchError((e) {
+      print(e.toString());
+    });
+  }
+
+  getConversationMessages(String chatRoomId) {
+    return FirebaseFirestore.instance
+        .collection('chatRoom')
+        .doc(chatRoomId)
+        .collection('chats')
+        .orderBy('time', descending: true)
+        .snapshots();
+  }
+
+  getAllChat(String userName) async {
+    return await FirebaseFirestore.instance
+        .collection('chatRoom')
+        .where('users', arrayContains: userName)
+        .snapshots();
   }
 }

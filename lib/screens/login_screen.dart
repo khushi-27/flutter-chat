@@ -18,7 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).accentColor,
+      backgroundColor: Color(0xFFFEF9DB),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
         child: ListView(
